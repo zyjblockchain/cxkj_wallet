@@ -16,12 +16,6 @@ func NewRouter(addr string) {
 
 	v1 := r.Group("/tac")
 	{
-		// 1. 创建跨链转账的订单, 返回订单id；
-		v1.POST("/apply_order", controllers.ApplyOrder())
-		// 2. 通过订单id查询订单详情 http://127.0.0.1:3000/tac/order/111
-		v1.GET("/order/:id", controllers.GetOrder())
-		// 3. 发送跨链转账交易
-		v1.POST("/send_tac_tx", controllers.SendTacTx())
 		// 4. 创建用户
 		v1.POST("/create_wallet", controllers.CreateUser())
 		// 5. 导入用户
@@ -48,8 +42,6 @@ func NewRouter(addr string) {
 		v1.GET("/get_eth_pala_price", controllers.GetLatestPalaToUsdtPrice())
 		// 11. 获取btcMax交易所上的eth价格,锚定的usdt
 		v1.GET("/get_eth_price", controllers.GetLatestEthToUsdtPrice())
-		// 12. 分页拉取跨链转账的订单记录
-		v1.POST("/get_tac_orders", controllers.BatchGetTacOrder())
 		// 13. 获取用户地址下的eth主网上pala接收记录
 		v1.POST("/get_eth_pala_receive", controllers.GetEthTokenTxRecords("PALA"))
 		// 14. 获取用户地址下的eth主网上usdt接收记录

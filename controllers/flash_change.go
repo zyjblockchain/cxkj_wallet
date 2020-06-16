@@ -10,6 +10,10 @@ import (
 	"github.com/zyjblockchain/tt_tac/utils"
 )
 
+type res struct {
+	OrderId uint
+}
+
 // FlashChange 闪兑
 func FlashChange() gin.HandlerFunc {
 	return func(c *gin.Context) {

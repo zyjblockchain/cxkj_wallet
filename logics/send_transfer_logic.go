@@ -38,15 +38,9 @@ func (p *PalaTransfer) SendPalaTx(chainTag int) (string, error) {
 	// new client
 	var palaTokenAddress string
 	var client *transaction.ChainClient
-	if chainTag == conf.EthChainTag {
-		client = transaction.NewChainClient(conf.EthChainNet, big.NewInt(int64(conf.EthChainID)))
-		palaTokenAddress = conf.EthPalaTokenAddress
-	} else if chainTag == conf.TTChainTag {
-		client = transaction.NewChainClient(conf.TTChainNet, big.NewInt(int64(conf.TTChainID)))
-		palaTokenAddress = conf.TtPalaTokenAddress
-	} else {
-		return "", errors.New("不存在的chainTag")
-	}
+
+	client = transaction.NewChainClient(conf.EthChainNet, big.NewInt(int64(conf.EthChainID)))
+	palaTokenAddress = conf.EthPalaTokenAddress
 
 	// 1. 检查from的pala余额是否足够
 	palaBalance, err := client.GetTokenBalance(common.HexToAddress(p.FromAddress), common.HexToAddress(palaTokenAddress))
@@ -168,13 +162,7 @@ func (c *CoinTransfer) SendMainNetCoinTransfer(chainTag int) (string, error) {
 
 	// 1. new client
 	var client *transaction.ChainClient
-	if chainTag == conf.EthChainTag {
-		client = transaction.NewChainClient(conf.EthChainNet, big.NewInt(int64(conf.EthChainID)))
-	} else if chainTag == conf.TTChainTag {
-		client = transaction.NewChainClient(conf.TTChainNet, big.NewInt(int64(conf.TTChainID)))
-	} else {
-		return "", errors.New("不存在的chainTag")
-	}
+	client = transaction.NewChainClient(conf.EthChainNet, big.NewInt(int64(conf.EthChainID)))
 
 	// getBalance
 	balance, err := client.Client.BalanceAt(context.Background(), common.HexToAddress(c.FromAddress), nil)

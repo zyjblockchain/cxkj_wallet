@@ -21,9 +21,7 @@ func main() {
 	// 1. 服务开始之前的init
 	startBefore()
 
-	// 3. 启动跨链转账服务
-	// ethChainApi := "httpKs://mainnet.infura.io/v3/19d753b2600445e292d54b1ef58d4df4"
-	// 3.1 开启eth链的监听
+	// 3 开启eth链的监听
 	ethChainApi := conf.EthChainNet
 	ethChainWather := eth_watcher.NewHttpBasedEthWatcher(context.Background(), ethChainApi)
 	go func() {
@@ -36,26 +34,6 @@ func main() {
 			panic(err)
 		}
 	}()
-	// 3.2 开启tt链上的监听
-	ttChainApi := conf.TTChainNet
-	ttChainWather := eth_watcher.NewHttpBasedEthWatcher(context.Background(), ttChainApi)
-	go func() {
-		err := ttChainWather.RunTillExit()
-		if err != nil {
-			log.Errorf("thundercore上的block watcher error: %v", err)
-			// 钉钉推送
-			content := fmt.Sprintf("thundercore上的block watcher返回error,服务已经停止，请重启服务")
-			_ = ding_robot.NewRobot(conf.AbnormalWebHook).SendText(content, nil, true)
-			panic(err)
-		}
-	}()
-
-	// 3.3 启动 eth -> tt 跨链process
-	ethToTtProcess := logics.NewTacProcess(ethChainApi, conf.EthPalaTokenAddress, conf.TtPalaTokenAddress, conf.TacMiddleAddress, ethChainWather, ttChainWather)
-	ethToTtProcess.ListenErc20CollectionAddress()
-	// 3.3 启动 tt -> eth 跨链process
-	ttToEthProcess := logics.NewTacProcess(ttChainApi, conf.TtPalaTokenAddress, conf.EthPalaTokenAddress, conf.TacMiddleAddress, ttChainWather, ethChainWather)
-	ttToEthProcess.ListenErc20CollectionAddress()
 
 	// 4. 启动闪兑服务
 	flashChangeSrv := logics.NewWatchFlashChange(conf.EthUSDTTokenAddress, conf.EthPalaTokenAddress, ethChainWather)
@@ -71,13 +49,11 @@ func main() {
 		logics.DelayedCollectUsdtTx()
 	}()
 
-	// 对跨链转账的订单表中pending状态的订单处理
-	logics.InitTacOrderState(ethToTtProcess, ttToEthProcess)
 	// 对闪兑的订单表中pending状态的订单处理
 	logics.InitFlashOrderState(flashChangeSrv)
 
 	// 6. 启动gin服务
-	routers.NewRouter(":3030")
+	routers.NewRouter(":3031")
 }
 
 // startBefore
@@ -103,23 +79,6 @@ func startBefore() {
 
 func initConf() {
 	var err error
-	// 1. 跨链地址和私钥
-	conf.TacMiddleAddress = os.Getenv("TacMiddleAddress")
-	log.Infof("tac_middles_address: %s", conf.TacMiddleAddress)
-	conf.TacMiddleAddressPrivate, err = utils.DecryptPrivate(os.Getenv("TacMiddleAddressPrivate"))
-	if err != nil {
-		panic(err)
-	}
-	// 检查私钥是否能还原出地址
-	address, err := utils.PrivateToAddress(conf.TacMiddleAddressPrivate)
-	if err != nil {
-		panic(fmt.Sprintf("跨链转账中转地址私钥转地址失败，请检查跨链转账私钥是否正确。error: %v", err))
-	}
-	// 地址比较
-	if strings.ToUpper(conf.TacMiddleAddress) != strings.ToUpper(address.String()) {
-		panic(fmt.Sprintf("跨链转账中转地址私钥还原出的地址与配置的地址不一致, oldAddress: %s, newAddress: %s", conf.TacMiddleAddress, address.String()))
-	}
-	log.Infof("tac_middles_encryto_private: %s", conf.TacMiddleAddressPrivate)
 
 	// 2. 数据库的dsn
 	conf.Dsn = os.Getenv("MYSQL_DSN")
@@ -132,7 +91,7 @@ func initConf() {
 		panic(err)
 	}
 	// 检查私钥是否能还原出地址
-	address, err = utils.PrivateToAddress(conf.EthFlashChangeMiddlePrivate)
+	address, err := utils.PrivateToAddress(conf.EthFlashChangeMiddlePrivate)
 	if err != nil {
 		panic(fmt.Sprintf("闪兑中转地址私钥转地址失败，请检查闪兑私钥是否正确。error: %v", err))
 	}

@@ -304,7 +304,7 @@ func (w *WatchFlashChange) ProcessCollectFlashChangeTx(from, amount string) erro
 	// 判断token余额是否足够
 	tokenBala, err := client.GetTokenBalance(common.HexToAddress(sender), common.HexToAddress(palaTokenAddress))
 	if err != nil {
-		log.Errorf("获取token balance error: %v, address: %s, tokenAddress: %s", err, conf.TacMiddleAddress, palaTokenAddress)
+		log.Errorf("获取token balance error: %v, address: %s, tokenAddress: %s", err, conf.EthFlashChangeMiddleAddress, palaTokenAddress)
 		return err
 	}
 	if tokenBala.Cmp(palaAmount) < 0 {
