@@ -13,7 +13,7 @@ type tHash struct {
 	TxHash string `json:"tx_hash"`
 }
 
-// SendPalaTransfer 发送pala交易
+// SendPalaTransfer 发送cxkj交易
 func SendPalaTransfer(chainTag int) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var logic logics.PalaTransfer
@@ -24,7 +24,7 @@ func SendPalaTransfer(chainTag int) gin.HandlerFunc {
 			return
 		}
 		// 把传入的amount换算成最小单位
-		logic.Amount = utils.FormatTokenAmount(logic.Amount, 8)
+		logic.Amount = utils.FormatTokenAmount(logic.Amount, 18)
 		log.Infof("发送pala转账交易；chainTag: %d, from: %s, to: %s, amount: %s", chainTag, logic.FromAddress, logic.ToAddress, logic.Amount)
 
 		// logic

@@ -128,7 +128,7 @@ func GetFlashUsdtAndPalaTotalAmount() gin.HandlerFunc {
 			toTokenAmount = toTokenAmount.Add(t)
 		}
 		resp := resp{
-			PalaTotal: utils.UnitConversion(fromTokenAmount.String(), 8, 6),
+			PalaTotal: utils.UnitConversion(fromTokenAmount.String(), 18, 6),
 			UsdtTotal: utils.UnitConversion(toTokenAmount.String(), 6, 6),
 		}
 		serializer.SuccessResponse(c, resp, "success")

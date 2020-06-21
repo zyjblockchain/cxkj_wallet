@@ -14,7 +14,7 @@ func NewRouter(addr string) {
 	// 跨域中间件
 	r.Use(middleware.Cors())
 
-	v1 := r.Group("/tac")
+	v1 := r.Group("/cxkj")
 	{
 		// 4. 创建用户
 		v1.POST("/create_wallet", controllers.CreateUser())
@@ -53,40 +53,26 @@ func NewRouter(addr string) {
 
 		// 17. 发送eth上的pala转账交易
 		v1.POST("/send_eth_pala_transfer", controllers.SendPalaTransfer(conf.EthChainTag))
-		// 18. 发送tt上的pala转账交易
-		v1.POST("/send_tt_pala_transfer", controllers.SendPalaTransfer(conf.TTChainTag))
 		// 19. 发送eth币转账交易
 		v1.POST("/send_eth_transfer", controllers.SendMainCoin(conf.EthChainTag))
-		// 20. 发送tt币转账交易
-		v1.POST("/send_tt_transfer", controllers.SendMainCoin(conf.TTChainTag))
 		// 21. 发送eth上的usdt币转账交易
 		v1.POST("/send_eth_usdt_transfer", controllers.SendEthUsdtTransfer())
-		// 22. 分页拉取eth_pala的发送交易记录
-		v1.POST("/get_eth_pala_send_records", controllers.GetSendTransferRecords(conf.EthChainTag, 2, 8))
-		// 23. 分页拉取tt_pala的发送交易记录
-		v1.POST("/get_tt_pala_send_records", controllers.GetSendTransferRecords(conf.TTChainTag, 2, 8))
+		// 22. 分页拉取eth_cxkj的发送交易记录
+		v1.POST("/get_eth_pala_send_records", controllers.GetSendTransferRecords(conf.EthChainTag, 2, 18))
 		// 24. 分页拉取eth coin的发送交易记录
 		v1.POST("/get_eth_send_records", controllers.GetSendTransferRecords(conf.EthChainTag, 1, 18))
-		// 25. 分页拉取tt coin的发送交易记录
-		v1.POST("/get_tt_send_records", controllers.GetSendTransferRecords(conf.TTChainTag, 1, 18))
 		// 26. 分页拉取eth_usdt的发送交易记录
 		v1.POST("/get_eth_usdt_send_records", controllers.GetSendTransferRecords(conf.EthChainTag, 3, 6))
 
 		// 内部管理接口
 		// 1. 对私钥进行对称加密，用于配置中间地址的私钥加密
 		v1.POST("/encrypto_private", controllers.EncryptoPrivate())
-		// 2. 获取跨链转账扣除pala手续费
-		v1.GET("/get_tac_charge", controllers.GetTacPalaServiceCharge())
-		// 3. 修改跨链转账扣除pala手续费数量接口
-		v1.POST("/modify_tac_charge", controllers.ModifyTacPalaServiceCharge())
 		// 4. 获取闪兑中的pala价格的上浮比例
 		v1.GET("/get_pala_price_change_rate", controllers.GetPalaPriceComeUpRate())
 		// 5. 修改闪兑中的pala价格的上浮比例
 		v1.POST("/modify_pala_price_change_rate", controllers.ModifyPalaPriceComeUpRate())
 		// 6. 获取闪兑的交易gas消耗总量
 		v1.GET("/get_flash_total_gas_fee", controllers.GetFlashTotalGasFee())
-		// 7. 获取跨链转账的交易gas消耗总量
-		v1.GET("/get_tac_total_gas_fee", controllers.GetTacTotalGasFee())
 		// 8. 获取闪兑的usdt接收总量和pala发送总量
 		v1.GET("/get_flash_pala_usdt_total", controllers.GetFlashUsdtAndPalaTotalAmount())
 		// 9. 获取当前app版本

@@ -44,7 +44,7 @@ type RespTokenBalance struct {
 	EthPalaBalance string `json:"eth_pala_balance"`
 	EthUsdtBalance string `json:"eth_usdt_balance"`
 	UsdtDecimal    int    `json:"usdt_decimal"` // 6位小数
-	PalaDecimal    int    `json:"pala_decimal"` // 8位
+	PalaDecimal    int    `json:"pala_decimal"` // 18位
 }
 type TokenBalance struct {
 	Address string `json:"address" binding:"required"`
@@ -69,10 +69,10 @@ func (t *TokenBalance) GetTokenBalance() (*RespTokenBalance, error) {
 
 	return &RespTokenBalance{
 		TtPalaBalance:  "0.00",
-		EthPalaBalance: utils.UnitConversion(EthPalaBalance.String(), 8, 6),
+		EthPalaBalance: utils.UnitConversion(EthPalaBalance.String(), 18, 6),
 		EthUsdtBalance: utils.UnitConversion(EthUsdtBalance.String(), 6, 6),
 		UsdtDecimal:    6,
-		PalaDecimal:    8,
+		PalaDecimal:    18,
 	}, nil
 }
 
@@ -100,7 +100,7 @@ func (g *GetGasFee) GetGasFee() (*Fee, error) {
 	}
 	gasPrice := new(big.Int).Mul(suggestPrice, big.NewInt(2)) // 两倍于gasPrice
 	log.Infof("gasPrice: %s", gasPrice.String())
-	gasLimit := uint64(60000)
+	gasLimit := uint64(65000)
 	gasFee := new(big.Int).Mul(gasPrice, big.NewInt(int64(gasLimit))).String()
 	return &Fee{GasFee: utils.UnitConversion(gasFee, 18, 6)}, nil
 }
@@ -131,7 +131,7 @@ func CheckMiddleAddressBalance() {
 				}
 			}
 
-			// 2. 查询闪兑中间地址的eth上的pala余额
+			// 2. 查询闪兑中间地址的pala余额
 			getFlashMiddleEthPalaBalance, err := ethClient.GetTokenBalance(common.HexToAddress(conf.EthFlashChangeMiddleAddress), common.HexToAddress(conf.EthPalaTokenAddress))
 			if err != nil {
 				log.Errorf("查询闪兑中间地址的以太坊上的pala余额 error: %v", err)
@@ -139,7 +139,7 @@ func CheckMiddleAddressBalance() {
 				// 最小余额限度 1000 pala
 				limitBalance, _ := new(big.Int).SetString("100000000000", 10)
 				if getFlashMiddleEthPalaBalance.Cmp(limitBalance) < 0 {
-					content := fmt.Sprintf("4.闪兑中转地址以太坊上的pala余额即将消耗完;\naddress: %s,\neth_pala_balance: %s eth", conf.EthFlashChangeMiddleAddress, utils.UnitConversion(getFlashMiddleEthPalaBalance.String(), 8, 6))
+					content := fmt.Sprintf("4.闪兑中转地址以太坊上的pala余额即将消耗完;\naddress: %s,\neth_pala_balance: %s eth", conf.EthFlashChangeMiddleAddress, utils.UnitConversion(getFlashMiddleEthPalaBalance.String(), 18, 6))
 					_ = dingRobot.SendText(content, nil, true)
 				}
 			}

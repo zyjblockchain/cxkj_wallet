@@ -64,10 +64,24 @@ func (f *FlashChange) FlashChange() (uint, error) {
 	fromTokenAmount, _ := new(big.Int).SetString(f.FromTokenAmount, 10)
 	if fromTokenBalance.Cmp(fromTokenAmount) < 0 {
 		// 余额不足
-		log.Errorf("账户中闪兑的from token 余额不足。address: %s, tokenAddress: %s, fromTokenBalance：%s, fromTokenAmount: %s",
+		log.Errorf("账户中闪兑的from USDT 余额不足。address: %s, tokenAddress: %s, fromTokenBalance：%s, fromTokenAmount: %s",
 			f.OperateAddress, f.FromTokenAddress, fromTokenBalance.String(), f.FromTokenAmount)
-		return 0, errors.New(fmt.Sprintf("账户中闪兑的from token 余额不足。address: %s, tokenAddress: %s, fromTokenBalance：%s, fromTokenAmount: %s",
+		return 0, errors.New(fmt.Sprintf("账户中闪兑的from USDT 余额不足。address: %s, tokenAddress: %s, fromTokenBalance：%s, fromTokenAmount: %s",
 			f.OperateAddress, f.FromTokenAddress, fromTokenBalance.String(), f.FromTokenAmount))
+	}
+	// 查看闪兑中间地址是否有足够的ToTokenAmount来进行闪兑
+	MiddleToTokenBalance, err := client.GetTokenBalance(common.HexToAddress(conf.EthFlashChangeMiddleAddress), common.HexToAddress(f.ToTokenAddress))
+	if err != nil {
+		log.Errorf("get middle cxkj token balance error: %v, address: %s, tokenAddress: %s", err, conf.EthFlashChangeMiddleAddress, f.ToTokenAddress)
+		return 0, err
+	}
+	toTokenAmount, _ := new(big.Int).SetString(f.ToTokenAmount, 10)
+	if MiddleToTokenBalance.Cmp(toTokenAmount) <= 0 {
+		// 中间地址余额不足
+		log.Errorf("闪兑的中间地址 cxkj余额不足。申请者address: %s, tokenAddress: %s, middleAddrTokenBalance：%s, toTokenAmount: %s",
+			f.OperateAddress, f.ToTokenAddress, MiddleToTokenBalance.String(), f.ToTokenAmount)
+		return 0, errors.New(fmt.Sprintf("账户中闪兑的中间地址 cxkj 余额不足。申请者address: %s, tokenAddress: %s, middleAddrTokenBalance：%s, toTokenAmount: %s",
+			f.OperateAddress, f.ToTokenAddress, MiddleToTokenBalance.String(), f.ToTokenAmount))
 	}
 
 	// todo 获取兑换价格，赋值给ToTokenAmount，

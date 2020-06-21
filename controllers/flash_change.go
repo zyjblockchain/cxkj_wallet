@@ -27,7 +27,7 @@ func FlashChange() gin.HandlerFunc {
 		// 单位换算
 		log.Infof("前端传入的闪兑参数；闪兑的usdt数量：%s; 接收的pala数量： %s", logic.FromTokenAmount, logic.ToTokenAmount)
 		logic.FromTokenAmount = utils.FormatTokenAmount(logic.FromTokenAmount, 6) // usdt的单位换算
-		logic.ToTokenAmount = utils.FormatTokenAmount(logic.ToTokenAmount, 8)     // pala单位换算
+		logic.ToTokenAmount = utils.FormatTokenAmount(logic.ToTokenAmount, 18)    // cxkj单位换算
 		// logic
 		// 目前只有以太坊上的usdt闪兑pala，所以这里为了防止前端不传或者传错,重写token address
 		logic.FromTokenAddress = conf.EthUSDTTokenAddress
@@ -88,7 +88,7 @@ func GetBatchOrderByAddress() gin.HandlerFunc {
 			for _, order := range orders {
 				r := RespOrder{
 					CreatedAt:     order.CreatedAt.Unix(),
-					ToTokenAmount: utils.UnitConversion(order.ToTokenAmount, 8, 6),
+					ToTokenAmount: utils.UnitConversion(order.ToTokenAmount, 18, 6),
 					State:         order.State,
 				}
 				resp = append(resp, r)

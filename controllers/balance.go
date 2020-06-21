@@ -58,32 +58,26 @@ func GetTokenBalance() gin.HandlerFunc {
 // GetLatestPalaToUsdtPrice
 func GetLatestPalaToUsdtPrice() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		pair := "PALA_USDT"
+		pair := "PCXKJ_USDT"
 		var err error
-		var tt *btc_max_api.Ticker
-		tt, err = btc_max_api.GetSingleMarketTicker(pair)
-		if err != nil {
-			// 重新请求一次
-			tt, err = btc_max_api.GetSingleMarketTicker(pair)
+		tt := &btc_max_api.Ticker{
+			Pair:       pair,
+			TradePrice: "",
 		}
+
+		// 这里设置一个固定的价格
+		initPrice := "1" // 1 CXKJ = 1 USDT
+		// 返回结果
+		// 给前端展示的pala价格需要高于真实价格
+		inc := decimal.NewFromFloat(conf.FlashPalaToUsdtPriceChange) // 配置文件中默认上浮1%
+		price, err := decimal.NewFromString(initPrice)
 		if err != nil {
-			// 返回error给前端
-			log.Errorf("GetSingleMarketTicker should binding error: %v", err)
+			log.Errorf(" decimal.NewFromString(initPrice)  error: %v", err)
 			serializer.ErrorResponse(c, utils.GetLatestPriceErrCode, utils.GetLatestPriceErrMsg, err.Error())
 			return
-		} else {
-			// 返回结果
-			// 给前端展示的pala价格需要高于真实价格
-			inc := decimal.NewFromFloat(conf.FlashPalaToUsdtPriceChange) // 配置文件中默认上浮1%
-			price, err := decimal.NewFromString(tt.TradePrice)
-			if err != nil {
-				log.Errorf(" decimal.NewFromString(tt.TradePrice)  error: %v", err)
-				serializer.ErrorResponse(c, utils.GetLatestPriceErrCode, utils.GetLatestPriceErrMsg, err.Error())
-				return
-			}
-			tt.TradePrice = price.Mul(inc).String()
-			serializer.SuccessResponse(c, *tt, "success")
 		}
+		tt.TradePrice = price.Mul(inc).String()
+		serializer.SuccessResponse(c, *tt, "success")
 	}
 }
 
