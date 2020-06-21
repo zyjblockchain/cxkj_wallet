@@ -126,7 +126,7 @@ func CheckMiddleAddressBalance() {
 				limitBalance, _ := new(big.Int).SetString("500000000000000000", 10)
 				if getFlashMiddleEthBalance.Cmp(limitBalance) < 0 {
 					// 通知需要充eth了
-					content := fmt.Sprintf("3.闪兑中转地址eth余额即将消耗完;\naddress: %s,\nbalance: %s eth", conf.EthFlashChangeMiddleAddress, utils.UnitConversion(getFlashMiddleEthBalance.String(), 18, 6))
+					content := fmt.Sprintf("3.闪兑中转地址eth余额即将消耗完，请及时充值;\naddress: %s,\nbalance: %s eth", conf.EthFlashChangeMiddleAddress, utils.UnitConversion(getFlashMiddleEthBalance.String(), 18, 6))
 					_ = dingRobot.SendText(content, nil, true)
 				}
 			}
@@ -134,12 +134,12 @@ func CheckMiddleAddressBalance() {
 			// 2. 查询闪兑中间地址的pala余额
 			getFlashMiddleEthPalaBalance, err := ethClient.GetTokenBalance(common.HexToAddress(conf.EthFlashChangeMiddleAddress), common.HexToAddress(conf.EthPalaTokenAddress))
 			if err != nil {
-				log.Errorf("查询闪兑中间地址的以太坊上的pala余额 error: %v", err)
+				log.Errorf("查询闪兑中间地址的以太坊上的cxkj余额 error: %v", err)
 			} else {
 				// 最小余额限度 1000 pala
-				limitBalance, _ := new(big.Int).SetString("100000000000", 10)
+				limitBalance, _ := new(big.Int).SetString("1000000000000000000000", 10)
 				if getFlashMiddleEthPalaBalance.Cmp(limitBalance) < 0 {
-					content := fmt.Sprintf("4.闪兑中转地址以太坊上的pala余额即将消耗完;\naddress: %s,\neth_pala_balance: %s eth", conf.EthFlashChangeMiddleAddress, utils.UnitConversion(getFlashMiddleEthPalaBalance.String(), 18, 6))
+					content := fmt.Sprintf("4.闪兑中转地址以太坊上的cxkj余额即将消耗完,请及时充值;\naddress: %s,\neth_pala_balance: %s eth", conf.EthFlashChangeMiddleAddress, utils.UnitConversion(getFlashMiddleEthPalaBalance.String(), 18, 6))
 					_ = dingRobot.SendText(content, nil, true)
 				}
 			}
